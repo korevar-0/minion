@@ -56,9 +56,7 @@
   }
   #parts { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .orb .dots {
-    position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
-    background-image: radial-gradient(#ffffff2e 1px, transparent 1.4px);
-    background-size: 9px 9px; mix-blend-mode: overlay; z-index: 3;
+    display: none;
   }
   .now {
     margin-top: 16px; max-width: 92vw; text-align: center; z-index: 2;
@@ -141,7 +139,6 @@
         <div class="orb" id="orb">
           <img id="minion" src="minion_face.png" alt="minion">
           <canvas id="parts"></canvas>
-          <div class="dots"></div>
         </div>
       </div>
       <div class="now" id="now">Тапни — поедет музыка</div>
@@ -228,23 +225,29 @@
   }
   let spin = 0;
 
-  let lvl = 0, kick = 0, prevLvl = 0, t0 = performance.now();
+  let lvl = 0, kick = 0, t0 = performance.now();
+  const bassHist = []; let lastBeat = 0;
   function frame(now) {
     requestAnimationFrame(frame);
     resize();
-    /* громкость */
+    /* громкость + детектор бита (относительный — пульсирует даже на тихой громкости) */
     let target = 0;
     if (analyser && playing) {
       analyser.getByteTimeDomainData(tdata);
+      analyser.getByteFrequencyData(freq);
       let sum = 0;
       for (let i = 0; i < tdata.length; i++) { const d = tdata[i] - 128; sum += d * d; }
       target = Math.min(1, Math.sqrt(sum / tdata.length) * 3.4);
+      let bass = 0;
+      for (let i = 2; i < 26; i++) bass += freq[i];
+      bass /= 24 * 255;
+      bassHist.push(bass); if (bassHist.length > 45) bassHist.shift();
+      const avg = bassHist.reduce((a, b) => a + b, 0) / bassHist.length;
+      if (bass > avg * 1.22 + 0.015 && now - lastBeat > 170) { kick = 1; lastBeat = now; }
     } else {
       target = 0.08 + 0.05 * Math.sin((now - t0) / 700);
     }
-    if (target - prevLvl > 0.09) kick = 1;
-    prevLvl = target;
-    kick *= 0.86;
+    kick *= 0.9;
     lvl += (target - lvl) * (target > lvl ? 0.5 : 0.14);
 
     /* сфера частиц внутри круга */
@@ -293,7 +296,7 @@
         }
         v = Math.max(v, 0.02);
         const a = (i / N) * 6.2832 - 1.5708;
-        const len = v * maxLen * (0.55 + lvl * 0.7);
+        const len = v * maxLen * (playing ? 1.9 + lvl * 0.9 + kick * 0.6 : 1);
         const hue = 285 - (i / N) * 95;
         sctx.strokeStyle = 'hsla(' + hue + ',100%,' + (56 + v * 22) + '%,' + (0.5 + v * 0.5) + ')';
         sctx.lineWidth = Math.max(2, sw / 190);
@@ -307,16 +310,15 @@
       sctx.shadowBlur = 0;
     }
 
-    /* пульс круга и миньона в такт громкости */
-    const s = 1 + lvl * 0.07 + kick * 0.05;
+    /* пульс круга и миньона в такт бита */
+    const s = 1 + lvl * 0.04 + kick * 0.07;
     orb.style.transform = 'scale(' + s + ')';
-    orb.style.boxShadow = '0 0 ' + (18 + lvl * 34 + kick * 20) + 'px rgba(255,255,255,' + (0.6 + lvl * 0.35) +
-      '), 0 0 ' + (50 + lvl * 70) + 'px rgba(255,46,230,' + (0.3 + lvl * 0.5) + '), inset 0 0 40px rgba(0,0,0,.62)';
+    orb.style.boxShadow = '0 0 ' + (18 + kick * 30) + 'px rgba(255,255,255,' + (0.55 + kick * 0.4) +
+      '), 0 0 ' + (50 + lvl * 70 + kick * 40) + 'px rgba(255,46,230,' + (0.3 + lvl * 0.5) + '), inset 0 0 40px rgba(0,0,0,.62)';
     if (playing) {
-      const wob = (Math.random() - 0.5) * lvl * 7;
-      minion.style.transform = 'scale(' + (1 + lvl * 0.18) + ') translateY(' + (-lvl * 10) + 'px) rotate(' + wob + 'deg)';
+      minion.style.transform = 'scale(' + (1 + lvl * 0.14 + kick * 0.12) + ') translateY(' + (-kick * 7) + 'px)';
     } else {
-      minion.style.transform = 'scale(' + (1 + lvl * 0.1) + ')';
+      minion.style.transform = 'scale(' + (1 + lvl * 0.08) + ')';
     }
   }
   requestAnimationFrame(frame);
