@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MINION MODE 🧌</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: #0a0612;
+    background-image: radial-gradient(circle at 50% -10%, #3a2166 0%, #1a0f2e 45%, #07040e 100%);
+    display: flex; flex-direction: column; align-items: center;
+    font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; user-select: none;
+    touch-action: manipulation; overflow: hidden; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(2px 2px at 18% 28%, #fff9 0%, transparent 100%),
+      radial-gradient(2px 2px at 72% 12%, #fff7 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 88% 52%, #fff6 0%, transparent 100%),
+      radial-gradient(2px 2px at 32% 74%, #fff8 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 58% 38%, #fff5 0%, transparent 100%),
+      radial-gradient(2px 2px at 8% 60%, #fff6 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 92% 85%, #fff5 0%, transparent 100%);
+    animation: twinkle 3.5s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
+  .aurora {
+    position: fixed; width: 120vmax; height: 120vmax; border-radius: 50%; z-index: 0;
+    background: conic-gradient(from 0deg, #ffd93514, #ff7b3514, #8a2be214, #ffd93514);
+    animation: spin 24s linear infinite; pointer-events: none; top: -60vmax;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .stage {
+    position: relative; z-index: 2; width: 100%; flex: 1 1 auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: max(18px, env(safe-area-inset-top)) 16px 8px;
+    min-height: 0; overflow: hidden;
+  }
+  .glow {
+    position: absolute; top: 8vmin; width: 66vmin; height: 66vmin; border-radius: 50%;
+    background: radial-gradient(circle, #ffd93530 0%, transparent 62%);
+    animation: pulse 2.2s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity:.6; } 50% { transform: scale(1.14); opacity:1; } }
+  #minion {
+    position: relative; z-index: 2; width: min(56vmin, 300px); margin-top: 2vmin;
+    filter: drop-shadow(0 0 26px #ffd93555) drop-shadow(0 14px 30px #000c);
+    animation: float 3.4s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  body.dancing #minion { animation: dance .42s ease-in-out infinite; }
+  @keyframes dance {
+    0%,100% { transform: rotate(-6deg) translateY(-10px) scale(1.04); }
+    25% { transform: rotate(5deg) translateY(-20px) scale(1.07); }
+    50% { transform: rotate(-5deg) translateY(-8px) scale(1.02); }
+    75% { transform: rotate(6deg) translateY(-18px) scale(1.06); }
+  }
+  #now {
+    position: relative; z-index: 2; margin-top: 14px; max-width: 92vw; text-align: center;
+    font-size: clamp(17px, 5vw, 24px); font-weight: 600; letter-spacing: .04em;
+    text-shadow: 0 0 16px #ffd93566; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .progwrap {
+    position: relative; z-index: 2; width: min(88vw, 420px); margin-top: 14px; padding: 8px 0;
+  }
+  .bar { width: 100%; height: 8px; background: #ffffff1e; border-radius: 4px; overflow: hidden; cursor: pointer; position: relative; }
+  .bar .fill { display: block; height: 100%; width: 0%; border-radius: 4px;
+    background: linear-gradient(90deg, #ffd935, #ff7b35); box-shadow: 0 0 12px #ffd93588; transition: width .12s linear; }
+  .time { display: flex; justify-content: space-between; font-size: 12px; color: #ffffff99; margin-top: 6px; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 26px; margin-top: 10px; z-index: 3; position: relative; }
+  .cbtn {
+    width: 52px; height: 52px; border-radius: 50%; border: 1px solid #ffffff2a;
+    background: #ffffff12; backdrop-filter: blur(8px); color: #fff; font-size: 22px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s, background .2s;
+  }
+  .cbtn:active { transform: scale(.9); }
+  .cbtn.main { width: 72px; height: 72px; font-size: 30px;
+    background: linear-gradient(145deg, #ffd935, #ff9b35); color: #221200; border: none;
+    box-shadow: 0 6px 24px #ffd93555; }
+  .hint {
+    z-index: 2; margin-top: 10px; font-size: 13px; color: #ffffffb0;
+    animation: blink 1.8s ease-in-out infinite; text-align: center;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  #err { z-index: 2; margin-top: 8px; font-size: 13px; color: #ff9c9c; display: none; text-align: center; }
+
+  .listwrap {
+    position: relative; z-index: 2; width: 100%; max-width: 480px;
+    padding: 10px 14px calc(16px + env(safe-area-inset-bottom));
+    flex: 0 0 auto; max-height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .listwrap::-webkit-scrollbar { width: 4px; }
+  .listwrap::-webkit-scrollbar-thumb { background: #ffffff22; border-radius: 2px; }
+  .row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 8px;
+    background: #ffffff10; border: 1px solid #ffffff14; border-radius: 14px;
+    backdrop-filter: blur(10px); cursor: pointer; transition: background .2s, transform .12s;
+  }
+  .row:active { transform: scale(.98); }
+  .row.active { background: #ffd93522; border-color: #ffd93566; }
+  .row .num { font-size: 12px; color: #ffffff66; width: 20px; text-align: center; }
+  .row .name { flex: 1; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row.active .name { color: #ffd935; }
+  .eq { display: none; gap: 2px; align-items: flex-end; height: 16px; }
+  .row.active.playing .eq { display: flex; }
+  .eq i { width: 3px; background: #ffd935; border-radius: 1px; animation: eq .7s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation-delay: .2s; } .eq i:nth-child(3) { animation-delay: .4s; }
+  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
+</style>
+</head>
+<body>
+  <div class="aurora"></div>
+  <div class="stage" id="stage">
+    <div class="glow"></div>
+    <img id="minion" src="minion.png" alt="minion">
+    <div id="now">Тапни — поедет музыка</div>
+    <div class="progwrap">
+      <div class="bar" id="bar"><span class="fill" id="fill"></span></div>
+      <div class="time"><span id="tcur">0:00</span><span id="ttot">0:00</span></div>
+    </div>
+    <div class="controls">
+      <div class="cbtn" id="prev">⏮</div>
+      <div class="cbtn main" id="play">▶</div>
+      <div class="cbtn" id="next">⏭</div>
+    </div>
+    <div class="hint" id="hint">тапни по миньону или треку 🎵</div>
+    <div id="err"></div>
+  </div>
+  <div class="listwrap" id="listwrap"><div id="list"></div></div>
+  <audio id="audio" preload="auto"></audio>
+<script>
+  const TRACKS = [
+    { file: '01_chicken_gan.mp3',  name: 'Песня про чикен ган' },
+    { file: '02_zastoy.mp3',       name: 'Застой' },
+    { file: '03_maslennikov.mp3',  name: 'Утерянное видео Масленникова' },
+    { file: '04_bucha.mp3',        name: 'Буча' },
+    { file: '05_tarantino.mp3',    name: 'Тарантиновский монолог' },
+    { file: '06_verity.mp3',       name: 'Верити (оригинал)' },
+    { file: '07_pension.mp3',      name: 'Пенсионный возраст' },
+    { file: '08_koch_bratan.mp3',  name: 'У коч братан боли' }
+  ];
+  const audio = document.getElementById('audio');
+  const nowEl = document.getElementById('now');
+  const fill = document.getElementById('fill');
+  const bar = document.getElementById('bar');
+  const tcur = document.getElementById('tcur');
+  const ttot = document.getElementById('ttot');
+  const playBtn = document.getElementById('play');
+  const hint = document.getElementById('hint');
+  const err = document.getElementById('err');
+  let idx = 0, playing = false;
+
+  function fmt(s) {
+    if (!isFinite(s)) return '0:00';
+    s = Math.floor(s);
+    return Math.floor(s/60) + ':' + String(s%60).padStart(2, '0');
+  }
+  function renderList() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    TRACKS.forEach((t, i) => {
+      const row = document.createElement('div');
+      row.className = 'row' + (i === idx ? ' active' : '') + (i === idx && playing ? ' playing' : '');
+      row.innerHTML = '<span class="num">' + (i+1) + '</span><span class="name">' + t.name +
+                      '</span><span class="eq"><i></i><i></i><i></i></span>';
+      row.addEventListener('pointerup', e => { e.stopPropagation(); play(i); });
+      list.appendChild(row);
+    });
+  }
+  function load(i, autoplay) {
+    idx = (i + TRACKS.length) % TRACKS.length;
+    audio.src = TRACKS[idx].file;
+    nowEl.textContent = TRACKS[idx].name;
+    fill.style.width = '0%'; tcur.textContent = '0:00'; ttot.textContent = '0:00';
+    renderList();
+    if (autoplay) start();
+  }
+  function start() {
+    audio.play().then(() => {
+      playing = true;
+      playBtn.textContent = '⏸';
+      document.body.classList.add('dancing');
+      hint.style.display = 'none';
+    }).catch(e => {
+      err.style.display = 'block';
+      err.textContent = 'Не завелось: ' + (audio.error ? 'файл трека битый' : e);
+    });
+  }
+  function pause() {
+    audio.pause(); playing = false; playBtn.textContent = '▶';
+    document.body.classList.remove('dancing');
+  }
+  function play(i) { load(i, true); }
+
+  document.getElementById('stage').addEventListener('pointerup', () => playing ? pause() : start());
+  playBtn.addEventListener('pointerup', e => { e.stopPropagation(); playing ? pause() : start(); });
+  document.getElementById('next').addEventListener('pointerup', e => { e.stopPropagation(); play(idx + 1); });
+  document.getElementById('prev').addEventListener('pointerup', e => { e.stopPropagation(); play(idx - 1); });
+  bar.addEventListener('pointerup', e => {
+    e.stopPropagation();
+    const r = bar.getBoundingClientRect();
+    if (isFinite(audio.duration)) audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
+  });
+  audio.addEventListener('timeupdate', () => {
+    if (isFinite(audio.duration)) {
+      fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      tcur.textContent = fmt(audio.currentTime);
+      ttot.textContent = fmt(audio.duration);
+    }
+  });
+  audio.addEventListener('ended', () => play(idx + 1));
+
+  load(0, false);
+</script>
+</body>
+</html>
