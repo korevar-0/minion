@@ -30,23 +30,23 @@
 
   .stage {
     flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: center;
-    padding: max(16px, env(safe-area-inset-top)) 14px 10px; overflow: hidden; position: relative;
+    padding: max(16px, env(safe-area-inset-top)) 14px 10px; position: relative;
   }
+  #spec { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
   .orbzone {
-    position: relative; width: min(74vmin, 420px); aspect-ratio: 1;
-    flex: 0 0 auto; margin-top: 1vmin;
+    position: relative; width: min(72vmin, 400px); aspect-ratio: 1;
+    flex: 0 0 auto; margin-top: 2vmin; z-index: 1;
   }
-  #spec { position: absolute; inset: -22%; width: 144%; height: 144%; pointer-events: none; z-index: 0; }
   .orbglow {
-    position: absolute; inset: -10%; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, #ff2ee624 0%, #7b5cff14 45%, transparent 70%);
+    position: absolute; inset: -12%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, #ff2ee620 0%, #7b5cff10 45%, transparent 70%);
     filter: blur(6px);
   }
   .orb {
     position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
     background: radial-gradient(circle at 50% 30%, #1c1030 0%, #100a1c 62%, #080410 100%);
     border: 3px solid #fff;
-    box-shadow: 0 0 18px #ffffffa6, 0 0 46px #c9a2ff59, inset 0 0 40px #000c;
+    box-shadow: 0 0 16px #ffffff80, 0 0 40px #c9a2ff4d, inset 0 0 40px #000c;
     will-change: transform;
   }
   .orb img {
@@ -54,9 +54,10 @@
     object-fit: cover; object-position: center 30%;
     will-change: transform;
   }
-  #parts { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .orb .dots {
-    display: none;
+  #orbflash {
+    position: absolute; inset: -1px; border-radius: 50%; pointer-events: none;
+    box-shadow: 0 0 26px 6px #ffffffcc, 0 0 70px 14px #ff2ee6aa;
+    opacity: 0;
   }
   .now {
     margin-top: 16px; max-width: 92vw; text-align: center; z-index: 2;
@@ -82,7 +83,6 @@
   @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
   #err { margin-top: 8px; font-size: 13px; color: #ff9c9c; display: none; text-align: center; }
 
-  /* ——— плейлист сбоку ——— */
   .playlist {
     flex: 0 0 320px; width: 320px; display: flex; flex-direction: column;
     border-left: 1px solid #ffffff14; background: #ffffff08; backdrop-filter: blur(14px);
@@ -126,20 +126,20 @@
     body.playlist-open .playlist { transform: none; }
     body.playlist-open::after { content: ''; position: fixed; inset: 0; z-index: 9; background: #0009; }
     .pl-toggle { display: flex; }
-    .orbzone { width: min(88vmin, 430px); }
+    .orbzone { width: min(74vmin, 380px); }
   }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="stage" id="stage">
+      <canvas id="spec"></canvas>
       <div class="orbzone">
-        <canvas id="spec"></canvas>
         <div class="orbglow"></div>
         <div class="orb" id="orb">
           <img id="minion" src="minion_face.png" alt="minion">
-          <canvas id="parts"></canvas>
         </div>
+        <div id="orbflash"></div>
       </div>
       <div class="now" id="now">Тапни — поедет музыка</div>
       <div class="progwrap">
@@ -173,6 +173,7 @@
     { file: '08_koch_bratan.mp3',  name: 'У коч братан боли' }
   ];
   const audio = document.getElementById('audio');
+  const stage = document.getElementById('stage');
   const nowEl = document.getElementById('now');
   const fill = document.getElementById('fill');
   const bar = document.getElementById('bar');
@@ -183,10 +184,9 @@
   const err = document.getElementById('err');
   const orb = document.getElementById('orb');
   const minion = document.getElementById('minion');
+  const orbflash = document.getElementById('orbflash');
   const spec = document.getElementById('spec');
   const sctx = spec.getContext('2d');
-  const parts = document.getElementById('parts');
-  const pctx = parts.getContext('2d');
   let idx = 0, playing = false;
 
   /* ——— аудио-граф ——— */
@@ -205,32 +205,32 @@
     } catch (e) { /* без реактива тоже проживёт */ }
   }
 
-  /* ——— размеры канвасов (с dpr, чтобы было «4к») ——— */
+  /* ——— геометрия: считаем один раз на изменение размера ——— */
+  let sw = 0, sh = 0, cx = 0, cy = 0, Rorb = 0, dpr = 1;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    const sz = document.querySelector('.orbzone').getBoundingClientRect();
-    const sw = Math.round(sz.width * 1.44 * dpr), sh = Math.round(sz.height * 1.44 * dpr);
-    if (spec.width !== sw) { spec.width = sw; spec.height = sh; }
-    const pw = Math.round(sz.width * dpr), ph = Math.round(sz.height * dpr);
-    if (parts.width !== pw) { parts.width = pw; parts.height = ph; }
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const srect = stage.getBoundingClientRect();
+    const orect = orb.getBoundingClientRect();
+    sw = Math.round(srect.width * dpr); sh = Math.round(srect.height * dpr);
+    if (spec.width !== sw || spec.height !== sh) { spec.width = sw; spec.height = sh; }
+    cx = (orect.left + orect.width / 2 - srect.left) * dpr;
+    cy = (orect.top + orect.height / 2 - srect.top) * dpr;
+    Rorb = orect.width / 2 * dpr;
   }
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 250));
 
-  /* ——— частицы: точки на сфере ——— */
-  const P = [];
-  for (let i = 0; i < 110; i++) {
-    const phi = Math.acos(1 - 2 * (i + 0.5) / 110);
-    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-    P.push([Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta)]);
-  }
-  let spin = 0;
-
+  /* ——— пульс: бас против своей средней — колотится даже на тихой громкости ——— */
   let lvl = 0, kick = 0, t0 = performance.now();
   const bassHist = []; let lastBeat = 0;
+
+  let lastW = 0, lastH = 0;
   function frame(now) {
     requestAnimationFrame(frame);
-    resize();
-    /* громкость + детектор бита (относительный — пульсирует даже на тихой громкости) */
+    if (stage.clientWidth !== lastW || stage.clientHeight !== lastH) {
+      lastW = stage.clientWidth; lastH = stage.clientHeight;
+      resize();
+    }
     let target = 0;
     if (analyser && playing) {
       analyser.getByteTimeDomainData(tdata);
@@ -242,7 +242,7 @@
       for (let i = 2; i < 26; i++) bass += freq[i];
       bass /= 24 * 255;
       bassHist.push(bass); if (bassHist.length > 45) bassHist.shift();
-      const avg = bassHist.reduce((a, b) => a + b, 0) / bassHist.length;
+      let avg = 0; for (const b of bassHist) avg += b; avg /= bassHist.length;
       if (bass > avg * 1.22 + 0.015 && now - lastBeat > 170) { kick = 1; lastBeat = now; }
     } else {
       target = 0.08 + 0.05 * Math.sin((now - t0) / 700);
@@ -250,73 +250,49 @@
     kick *= 0.9;
     lvl += (target - lvl) * (target > lvl ? 0.5 : 0.14);
 
-    /* сфера частиц внутри круга */
-    const pw = parts.width, ph = parts.height;
-    pctx.clearRect(0, 0, pw, ph);
-    if (pw > 0) {
-      const cx = pw / 2, cy = ph / 2, R = Math.min(pw, ph) * 0.46;
-      spin += 0.004 + lvl * 0.012;
-      for (let i = 0; i < P.length; i++) {
-        let [x, y, z] = P[i];
-        const ca = Math.cos(spin), sa = Math.sin(spin);
-        let x2 = x * ca + z * sa, z2 = -x * sa + z * ca;
-        const ct = 0.42, st = Math.sin(spin * 0.7) * 0.3;
-        let y2 = y * Math.cos(ct) - z2 * Math.sin(ct) + 0.0;
-        z2 = y * Math.sin(ct) + z2 * Math.cos(ct);
-        const depth = (z2 + 1) / 2;
-        const px = cx + x2 * R * 0.94, py = cy - y2 * R * 0.94;
-        const hue = 190 + (x2 + 1) * 55;
-        const sz = (0.9 + depth * 1.8) * (1 + lvl * 1.4) * (pw / 420);
-        pctx.globalAlpha = 0.25 + depth * 0.45 + lvl * 0.3;
-        pctx.fillStyle = 'hsl(' + hue + ',100%,' + (58 + lvl * 20) + '%)';
-        pctx.beginPath();
-        pctx.arc(px, py, Math.max(0.6, sz), 0, 6.2832);
-        pctx.fill();
-      }
-      pctx.globalAlpha = 1;
-    }
-
-    /* неоновое кольцо-спектр вокруг круга */
-    const sw = spec.width, sh = spec.height;
+    /* неоновое кольцо-спектр: палки до границы экрана, никогда не режутся */
     sctx.clearRect(0, 0, sw, sh);
-    if (sw > 0) {
-      const cx = sw / 2, cy = sh / 2;
-      const Rorb = Math.min(sw, sh) / 2 / 1.44;
-      const R0 = Rorb * 1.045;
-      const maxLen = Math.min(sw, sh) / 2 - R0 - 6 * (window.devicePixelRatio || 1);
-      const N = 72;
-      sctx.lineCap = 'round';
+    if (sw > 0 && Rorb > 0) {
+      const N = 60, lw = Math.max(2, sw / 260);
+      const R0 = Rorb * 1.06;
       for (let i = 0; i < N; i++) {
+        const a = (i / N) * 6.2832 - Math.PI / 2;
+        const c = Math.cos(a), s = Math.sin(a);
+        let dist = 1e9;
+        if (c > 0.001) dist = Math.min(dist, (sw - cx) / c);
+        if (c < -0.001) dist = Math.min(dist, cx / -c);
+        if (s > 0.001) dist = Math.min(dist, (sh - cy) / s);
+        if (s < -0.001) dist = Math.min(dist, cy / -s);
+        const maxLen = Math.max(3, dist - R0 - 5 * dpr);
         let v;
         if (analyser && playing) {
-          const bin = Math.floor(Math.pow(i / N, 1.4) * (freq.length * 0.72));
+          const bin = Math.floor(Math.pow(i / N, 1.35) * (freq.length * 0.7));
           v = freq[bin] / 255;
         } else {
-          v = 0.06 + 0.05 * Math.sin(now / 500 + i * 0.55);
+          v = 0.08 + 0.06 * Math.sin(now / 480 + i * 0.55);
         }
-        v = Math.max(v, 0.02);
-        const a = (i / N) * 6.2832 - 1.5708;
-        const len = v * maxLen * (playing ? 1.9 + lvl * 0.9 + kick * 0.6 : 1);
+        v = Math.max(v, 0.03);
         const hue = 285 - (i / N) * 95;
-        sctx.strokeStyle = 'hsla(' + hue + ',100%,' + (56 + v * 22) + '%,' + (0.5 + v * 0.5) + ')';
-        sctx.lineWidth = Math.max(2, sw / 190);
-        sctx.shadowColor = 'hsla(' + hue + ',100%,60%,0.9)';
-        sctx.shadowBlur = 10 + v * 16 + kick * 14;
-        sctx.beginPath();
-        sctx.moveTo(cx + Math.cos(a) * R0, cy + Math.sin(a) * R0);
-        sctx.lineTo(cx + Math.cos(a) * (R0 + len), cy + Math.sin(a) * (R0 + len));
-        sctx.stroke();
+        const x1 = cx + c * R0, y1 = cy + s * R0;
+        const x2 = cx + c * (R0 + maxLen * v), y2 = cy + s * (R0 + maxLen * v);
+        const x3 = cx + c * (R0 + maxLen * v * 1.9 + lw * 2), y3 = cy + s * (R0 + maxLen * v * 1.9 + lw * 2);
+        /* глоу (широкий полупрозрачный штрих вместо shadowBlur — быстро) */
+        sctx.strokeStyle = 'hsla(' + hue + ',100%,60%,' + (0.16 + v * 0.25 + kick * 0.15) + ')';
+        sctx.lineWidth = lw * 3.2;
+        sctx.beginPath(); sctx.moveTo(x1, y1); sctx.lineTo(x3, y3); sctx.stroke();
+        /* ядро */
+        sctx.strokeStyle = 'hsla(' + hue + ',100%,' + (60 + v * 20) + '%,' + (0.65 + v * 0.35) + ')';
+        sctx.lineWidth = lw;
+        sctx.beginPath(); sctx.moveTo(x1, y1); sctx.lineTo(x2, y2); sctx.stroke();
       }
-      sctx.shadowBlur = 0;
     }
 
-    /* пульс круга и миньона в такт бита */
-    const s = 1 + lvl * 0.04 + kick * 0.07;
+    /* вспышка на бите и пульс круга */
+    orbflash.style.opacity = Math.min(1, kick * 0.9);
+    const s = 1 + lvl * 0.04 + kick * 0.06;
     orb.style.transform = 'scale(' + s + ')';
-    orb.style.boxShadow = '0 0 ' + (18 + kick * 30) + 'px rgba(255,255,255,' + (0.55 + kick * 0.4) +
-      '), 0 0 ' + (50 + lvl * 70 + kick * 40) + 'px rgba(255,46,230,' + (0.3 + lvl * 0.5) + '), inset 0 0 40px rgba(0,0,0,.62)';
     if (playing) {
-      minion.style.transform = 'scale(' + (1 + lvl * 0.14 + kick * 0.12) + ') translateY(' + (-kick * 7) + 'px)';
+      minion.style.transform = 'scale(' + (1 + lvl * 0.12 + kick * 0.1) + ') translateY(' + (-kick * 6) + 'px)';
     } else {
       minion.style.transform = 'scale(' + (1 + lvl * 0.08) + ')';
     }
