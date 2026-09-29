@@ -26,10 +26,11 @@
   }
   @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
 
-  .wrap { position: relative; z-index: 2; display: flex; width: 100%; height: 100%; }
+  body { display: flex; }
+  .wrap { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; height: 100%; }
 
   .stage {
-    flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: center;
+    height: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center;
     padding: max(16px, env(safe-area-inset-top)) 14px 10px; position: relative;
   }
   #spec { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
@@ -84,7 +85,7 @@
   #err { margin-top: 8px; font-size: 13px; color: #ff9c9c; display: none; text-align: center; }
 
   .playlist {
-    flex: 0 0 320px; width: 320px; display: flex; flex-direction: column;
+    flex: 0 0 320px; height: 100%; display: flex; flex-direction: column;
     border-left: 1px solid #ffffff14; background: #ffffff08; backdrop-filter: blur(14px);
     overflow: hidden;
   }
@@ -253,9 +254,9 @@
     /* неоновое кольцо-спектр: палки до границы экрана, никогда не режутся */
     sctx.clearRect(0, 0, sw, sh);
     if (sw > 0 && Rorb > 0) {
+      const R0 = Rorb * 1.06;
       const N = 44;
       const lw = Math.max(3, 6.2832 * R0 / N * 0.68);
-      const R0 = Rorb * 1.06;
       for (let i = 0; i < N; i++) {
         const a = (i / N) * 6.2832 - Math.PI / 2;
         const c = Math.cos(a), s = Math.sin(a);
