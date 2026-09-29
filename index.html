@@ -154,10 +154,10 @@
       <div class="hint" id="hint">тапни по кругу или треку 🎵</div>
       <div id="err"></div>
     </div>
-    <div class="playlist" id="playlist">
-      <div class="pl-head">Плейлист · 8</div>
-      <div class="pl-list" id="list"></div>
-    </div>
+  </div>
+  <div class="playlist" id="playlist">
+    <div class="pl-head">Плейлист · 8</div>
+    <div class="pl-list" id="list"></div>
   </div>
   <div class="pl-toggle" id="plToggle">☰</div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
@@ -221,7 +221,7 @@
   window.addEventListener('orientationchange', () => setTimeout(resize, 250));
 
   /* ——— пульс: бас против своей средней — колотится даже на тихой громкости ——— */
-  let lvl = 0, kick = 0, t0 = performance.now();
+  let lvl = 0, kick = 0, bassSm = 0.1, t0 = performance.now();
   const bassHist = []; let lastBeat = 0;
 
   let lastW = 0, lastH = 0;
@@ -231,29 +231,30 @@
       lastW = stage.clientWidth; lastH = stage.clientHeight;
       resize();
     }
-    let target = 0;
+    let target = 0, bass = 0;
     if (analyser && playing) {
       analyser.getByteTimeDomainData(tdata);
       analyser.getByteFrequencyData(freq);
       let sum = 0;
       for (let i = 0; i < tdata.length; i++) { const d = tdata[i] - 128; sum += d * d; }
       target = Math.min(1, Math.sqrt(sum / tdata.length) * 3.4);
-      let bass = 0;
       for (let i = 2; i < 26; i++) bass += freq[i];
       bass /= 24 * 255;
       bassHist.push(bass); if (bassHist.length > 45) bassHist.shift();
       let avg = 0; for (const b of bassHist) avg += b; avg /= bassHist.length;
-      if (bass > avg * 1.22 + 0.015 && now - lastBeat > 170) { kick = 1; lastBeat = now; }
+      if (bass > avg * 1.12 + 0.008 && now - lastBeat > 140) { kick = 1; lastBeat = now; }
     } else {
       target = 0.08 + 0.05 * Math.sin((now - t0) / 700);
     }
     kick *= 0.9;
     lvl += (target - lvl) * (target > lvl ? 0.5 : 0.14);
+    bassSm += (bass - bassSm) * 0.3;
 
     /* неоновое кольцо-спектр: палки до границы экрана, никогда не режутся */
     sctx.clearRect(0, 0, sw, sh);
     if (sw > 0 && Rorb > 0) {
-      const N = 60, lw = Math.max(2, sw / 260);
+      const N = 44;
+      const lw = Math.max(3, 6.2832 * R0 / N * 0.68);
       const R0 = Rorb * 1.06;
       for (let i = 0; i < N; i++) {
         const a = (i / N) * 6.2832 - Math.PI / 2;
@@ -287,14 +288,14 @@
       }
     }
 
-    /* вспышка на бите и пульс круга */
+    /* вспышка на бите и непрерывный пульс от баса */
     orbflash.style.opacity = Math.min(1, kick * 0.9);
-    const s = 1 + lvl * 0.04 + kick * 0.06;
+    const s = 1 + bassSm * 0.16 + kick * 0.06 + lvl * 0.02;
     orb.style.transform = 'scale(' + s + ')';
     if (playing) {
-      minion.style.transform = 'scale(' + (1 + lvl * 0.12 + kick * 0.1) + ') translateY(' + (-kick * 6) + 'px)';
+      minion.style.transform = 'scale(' + (1 + bassSm * 0.2 + kick * 0.12) + ') translateY(' + (-kick * 7 - bassSm * 3) + 'px)';
     } else {
-      minion.style.transform = 'scale(' + (1 + lvl * 0.08) + ')';
+      minion.style.transform = 'scale(' + (1 + bassSm * 0.1) + ')';
     }
   }
   requestAnimationFrame(frame);
