@@ -33,41 +33,42 @@
     padding: max(16px, env(safe-area-inset-top)) 14px 10px; overflow: hidden; position: relative;
   }
   .orbzone {
-    position: relative; width: min(74vmin, 400px); aspect-ratio: 1;
-    display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1vmin;
+    position: relative; width: min(74vmin, 420px); aspect-ratio: 1;
+    flex: 0 0 auto; margin-top: 1vmin;
   }
+  #spec { position: absolute; inset: -22%; width: 144%; height: 144%; pointer-events: none; z-index: 0; }
   .orbglow {
-    position: absolute; inset: -14%; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, #c9a2ff2e 0%, #ffd93514 45%, transparent 70%);
-    filter: blur(6px); transition: opacity .1s linear; opacity: .5;
+    position: absolute; inset: -10%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, #ff2ee624 0%, #7b5cff14 45%, transparent 70%);
+    filter: blur(6px);
   }
   .orb {
-    position: relative; width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
-    background: radial-gradient(circle at 50% 35%, #241537 0%, #120a1e 70%, #0a0512 100%);
+    position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+    background: radial-gradient(circle at 50% 30%, #1c1030 0%, #100a1c 62%, #080410 100%);
     border: 3px solid #fff;
-    box-shadow: 0 0 18px #ffffff8c, 0 0 46px #c9a2ff59, inset 0 0 34px #000a;
-    display: flex; align-items: center; justify-content: center;
-    transition: box-shadow .08s linear;
-  }
-  .orb .dots {
-    position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
-    background-image: radial-gradient(#ffffff2b 1px, transparent 1.4px);
-    background-size: 9px 9px; mix-blend-mode: overlay;
+    box-shadow: 0 0 18px #ffffffa6, 0 0 46px #c9a2ff59, inset 0 0 40px #000c;
+    will-change: transform;
   }
   .orb img {
-    width: 88%; height: 88%; object-fit: contain; object-position: center 70%;
-    filter: drop-shadow(0 0 14px #ffd93533);
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center 30%;
     will-change: transform;
+  }
+  #parts { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .orb .dots {
+    position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
+    background-image: radial-gradient(#ffffff2e 1px, transparent 1.4px);
+    background-size: 9px 9px; mix-blend-mode: overlay; z-index: 3;
   }
   .now {
     margin-top: 16px; max-width: 92vw; text-align: center; z-index: 2;
     font-size: clamp(16px, 4.6vw, 23px); font-weight: 600; letter-spacing: .04em;
-    text-shadow: 0 0 16px #c9a2ff77; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-shadow: 0 0 16px #ff2ee677; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .progwrap { width: min(88vw, 430px); margin-top: 12px; z-index: 2; }
   .bar { width: 100%; height: 8px; background: #ffffff1e; border-radius: 4px; overflow: hidden; cursor: pointer; }
   .bar .fill { display: block; height: 100%; width: 0%; border-radius: 4px;
-    background: linear-gradient(90deg, #c9a2ff, #ff7b35); box-shadow: 0 0 12px #c9a2ff88; transition: width .12s linear; }
+    background: linear-gradient(90deg, #35e0ff, #ff2ee6); box-shadow: 0 0 12px #ff2ee688; transition: width .12s linear; }
   .time { display: flex; justify-content: space-between; font-size: 12px; color: #ffffff99; margin-top: 6px; }
   .controls { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 10px; z-index: 3; }
   .cbtn {
@@ -77,8 +78,8 @@
   }
   .cbtn:active { transform: scale(.9); }
   .cbtn.main { width: 70px; height: 70px; font-size: 29px;
-    background: linear-gradient(145deg, #c9a2ff, #7b5cff); color: #fff; border: none;
-    box-shadow: 0 6px 24px #7b5cff66; }
+    background: linear-gradient(145deg, #35e0ff, #ff2ee6); color: #fff; border: none;
+    box-shadow: 0 6px 24px #ff2ee666; }
   .hint { margin-top: 10px; font-size: 13px; color: #ffffffb0; animation: blink 1.8s ease-in-out infinite; }
   @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
   #err { margin-top: 8px; font-size: 13px; color: #ff9c9c; display: none; text-align: center; }
@@ -102,20 +103,20 @@
     cursor: pointer; transition: background .2s, transform .12s;
   }
   .row:active { transform: scale(.98); }
-  .row.active { background: #c9a2ff26; border-color: #c9a2ff66; }
+  .row.active { background: #ff2ee622; border-color: #ff2ee666; }
   .row .num { font-size: 12px; color: #ffffff66; width: 18px; text-align: center; }
   .row .name { flex: 1; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row.active .name { color: #c9a2ff; }
+  .row.active .name { color: #35e0ff; }
   .eq { display: none; gap: 2px; align-items: flex-end; height: 15px; }
   .row.active.playing .eq { display: flex; }
-  .eq i { width: 3px; background: #c9a2ff; border-radius: 1px; animation: eq .7s ease-in-out infinite; }
+  .eq i { width: 3px; background: #35e0ff; border-radius: 1px; animation: eq .7s ease-in-out infinite; }
   .eq i:nth-child(2) { animation-delay: .2s; } .eq i:nth-child(3) { animation-delay: .4s; }
   @keyframes eq { 0%,100% { height: 4px; } 50% { height: 15px; } }
 
   .pl-toggle {
     display: none; position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 11; width: 56px; height: 56px; border-radius: 50%; border: 1px solid #ffffff2a;
-    background: #7b5cffee; color: #fff; font-size: 24px; align-items: center; justify-content: center;
+    background: #ff2ee6e6; color: #fff; font-size: 24px; align-items: center; justify-content: center;
     box-shadow: 0 8px 24px #000a; cursor: pointer;
   }
   @media (max-width: 719px) {
@@ -127,7 +128,7 @@
     body.playlist-open .playlist { transform: none; }
     body.playlist-open::after { content: ''; position: fixed; inset: 0; z-index: 9; background: #0009; }
     .pl-toggle { display: flex; }
-    .orbzone { width: min(88vmin, 420px); }
+    .orbzone { width: min(88vmin, 430px); }
   }
 </style>
 </head>
@@ -135,9 +136,11 @@
   <div class="wrap">
     <div class="stage" id="stage">
       <div class="orbzone">
-        <div class="orbglow" id="orbglow"></div>
+        <canvas id="spec"></canvas>
+        <div class="orbglow"></div>
         <div class="orb" id="orb">
-          <img id="minion" src="minion_cut.png" alt="minion">
+          <img id="minion" src="minion_face.png" alt="minion">
+          <canvas id="parts"></canvas>
           <div class="dots"></div>
         </div>
       </div>
@@ -182,12 +185,15 @@
   const hint = document.getElementById('hint');
   const err = document.getElementById('err');
   const orb = document.getElementById('orb');
-  const orbglow = document.getElementById('orbglow');
   const minion = document.getElementById('minion');
+  const spec = document.getElementById('spec');
+  const sctx = spec.getContext('2d');
+  const parts = document.getElementById('parts');
+  const pctx = parts.getContext('2d');
   let idx = 0, playing = false;
 
-  /* ——— аудио-граф: анализатор громкости ——— */
-  let actx = null, analyser = null, tdata = null;
+  /* ——— аудио-граф ——— */
+  let actx = null, analyser = null, tdata = null, freq = null;
   function initAnalyser() {
     if (actx) return;
     try {
@@ -195,35 +201,125 @@
       const src = actx.createMediaElementSource(audio);
       analyser = actx.createAnalyser();
       analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.78;
       src.connect(analyser); analyser.connect(actx.destination);
       tdata = new Uint8Array(analyser.fftSize);
+      freq = new Uint8Array(analyser.frequencyBinCount);
     } catch (e) { /* без реактива тоже проживёт */ }
   }
-  let lvl = 0;
-  function reactFrame() {
+
+  /* ——— размеры канвасов (с dpr, чтобы было «4к») ——— */
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const sz = document.querySelector('.orbzone').getBoundingClientRect();
+    const sw = Math.round(sz.width * 1.44 * dpr), sh = Math.round(sz.height * 1.44 * dpr);
+    if (spec.width !== sw) { spec.width = sw; spec.height = sh; }
+    const pw = Math.round(sz.width * dpr), ph = Math.round(sz.height * dpr);
+    if (parts.width !== pw) { parts.width = pw; parts.height = ph; }
+  }
+  window.addEventListener('resize', resize);
+
+  /* ——— частицы: точки на сфере ——— */
+  const P = [];
+  for (let i = 0; i < 110; i++) {
+    const phi = Math.acos(1 - 2 * (i + 0.5) / 110);
+    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+    P.push([Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta)]);
+  }
+  let spin = 0;
+
+  let lvl = 0, kick = 0, prevLvl = 0, t0 = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    resize();
+    /* громкость */
     let target = 0;
     if (analyser && playing) {
       analyser.getByteTimeDomainData(tdata);
       let sum = 0;
       for (let i = 0; i < tdata.length; i++) { const d = tdata[i] - 128; sum += d * d; }
-      target = Math.min(1, Math.sqrt(sum / tdata.length) * 3.2);
-    }
-    lvl += (target - lvl) * (target > lvl ? 0.45 : 0.12);
-    const s = 1 + lvl * 0.09;
-    orb.style.transform = 'scale(' + s + ')';
-    orb.style.boxShadow = '0 0 ' + (18 + lvl * 30) + 'px rgba(255,255,255,' + (0.55 + lvl * 0.4) +
-      '), 0 0 ' + (46 + lvl * 60) + 'px rgba(201,162,255,' + (0.35 + lvl * 0.45) + '), inset 0 0 34px rgba(0,0,0,.62)';
-    orbglow.style.opacity = 0.4 + lvl * 0.6;
-    orbglow.style.transform = 'scale(' + (1 + lvl * 0.22) + ')';
-    if (playing) {
-      const wob = (Math.random() - 0.5) * lvl * 8;
-      minion.style.transform = 'scale(' + (1 + lvl * 0.22) + ') translateY(' + (-lvl * 12) + 'px) rotate(' + wob + 'deg)';
+      target = Math.min(1, Math.sqrt(sum / tdata.length) * 3.4);
     } else {
-      minion.style.transform = '';
+      target = 0.08 + 0.05 * Math.sin((now - t0) / 700);
     }
-    requestAnimationFrame(reactFrame);
+    if (target - prevLvl > 0.09) kick = 1;
+    prevLvl = target;
+    kick *= 0.86;
+    lvl += (target - lvl) * (target > lvl ? 0.5 : 0.14);
+
+    /* сфера частиц внутри круга */
+    const pw = parts.width, ph = parts.height;
+    pctx.clearRect(0, 0, pw, ph);
+    if (pw > 0) {
+      const cx = pw / 2, cy = ph / 2, R = Math.min(pw, ph) * 0.46;
+      spin += 0.004 + lvl * 0.012;
+      for (let i = 0; i < P.length; i++) {
+        let [x, y, z] = P[i];
+        const ca = Math.cos(spin), sa = Math.sin(spin);
+        let x2 = x * ca + z * sa, z2 = -x * sa + z * ca;
+        const ct = 0.42, st = Math.sin(spin * 0.7) * 0.3;
+        let y2 = y * Math.cos(ct) - z2 * Math.sin(ct) + 0.0;
+        z2 = y * Math.sin(ct) + z2 * Math.cos(ct);
+        const depth = (z2 + 1) / 2;
+        const px = cx + x2 * R * 0.94, py = cy - y2 * R * 0.94;
+        const hue = 190 + (x2 + 1) * 55;
+        const sz = (0.9 + depth * 1.8) * (1 + lvl * 1.4) * (pw / 420);
+        pctx.globalAlpha = 0.25 + depth * 0.45 + lvl * 0.3;
+        pctx.fillStyle = 'hsl(' + hue + ',100%,' + (58 + lvl * 20) + '%)';
+        pctx.beginPath();
+        pctx.arc(px, py, Math.max(0.6, sz), 0, 6.2832);
+        pctx.fill();
+      }
+      pctx.globalAlpha = 1;
+    }
+
+    /* неоновое кольцо-спектр вокруг круга */
+    const sw = spec.width, sh = spec.height;
+    sctx.clearRect(0, 0, sw, sh);
+    if (sw > 0) {
+      const cx = sw / 2, cy = sh / 2;
+      const Rorb = Math.min(sw, sh) / 2 / 1.44;
+      const R0 = Rorb * 1.045;
+      const maxLen = Math.min(sw, sh) / 2 - R0 - 6 * (window.devicePixelRatio || 1);
+      const N = 72;
+      sctx.lineCap = 'round';
+      for (let i = 0; i < N; i++) {
+        let v;
+        if (analyser && playing) {
+          const bin = Math.floor(Math.pow(i / N, 1.4) * (freq.length * 0.72));
+          v = freq[bin] / 255;
+        } else {
+          v = 0.06 + 0.05 * Math.sin(now / 500 + i * 0.55);
+        }
+        v = Math.max(v, 0.02);
+        const a = (i / N) * 6.2832 - 1.5708;
+        const len = v * maxLen * (0.55 + lvl * 0.7);
+        const hue = 285 - (i / N) * 95;
+        sctx.strokeStyle = 'hsla(' + hue + ',100%,' + (56 + v * 22) + '%,' + (0.5 + v * 0.5) + ')';
+        sctx.lineWidth = Math.max(2, sw / 190);
+        sctx.shadowColor = 'hsla(' + hue + ',100%,60%,0.9)';
+        sctx.shadowBlur = 10 + v * 16 + kick * 14;
+        sctx.beginPath();
+        sctx.moveTo(cx + Math.cos(a) * R0, cy + Math.sin(a) * R0);
+        sctx.lineTo(cx + Math.cos(a) * (R0 + len), cy + Math.sin(a) * (R0 + len));
+        sctx.stroke();
+      }
+      sctx.shadowBlur = 0;
+    }
+
+    /* пульс круга и миньона в такт громкости */
+    const s = 1 + lvl * 0.07 + kick * 0.05;
+    orb.style.transform = 'scale(' + s + ')';
+    orb.style.boxShadow = '0 0 ' + (18 + lvl * 34 + kick * 20) + 'px rgba(255,255,255,' + (0.6 + lvl * 0.35) +
+      '), 0 0 ' + (50 + lvl * 70) + 'px rgba(255,46,230,' + (0.3 + lvl * 0.5) + '), inset 0 0 40px rgba(0,0,0,.62)';
+    if (playing) {
+      const wob = (Math.random() - 0.5) * lvl * 7;
+      minion.style.transform = 'scale(' + (1 + lvl * 0.18) + ') translateY(' + (-lvl * 10) + 'px) rotate(' + wob + 'deg)';
+    } else {
+      minion.style.transform = 'scale(' + (1 + lvl * 0.1) + ')';
+    }
   }
-  requestAnimationFrame(reactFrame);
+  requestAnimationFrame(frame);
 
   /* ——— плеер ——— */
   function fmt(s) {
