@@ -255,8 +255,8 @@
     sctx.clearRect(0, 0, sw, sh);
     if (sw > 0 && Rorb > 0) {
       const R0 = Rorb * 1.06;
-      const N = 44;
-      const lw = Math.max(3, 6.2832 * R0 / N * 0.68);
+      const N = 88;
+      const lw = Math.max(2, 6.2832 * R0 / N * 0.5);
       for (let i = 0; i < N; i++) {
         const a = (i / N) * 6.2832 - Math.PI / 2;
         const c = Math.cos(a), s = Math.sin(a);
